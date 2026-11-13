@@ -1,0 +1,26 @@
+[Unit]
+Description=mcmesh anchor node (dedicated Minecraft server that hosts a world when no player machine does)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/mcmesh-anchor
+# the server's own start script; it must exit when the world is handed over
+ExecStart=/srv/mcmesh-anchor/run.sh nogui
+# Restart=always, not on-failure: handing the world to a player machine is a clean exit, and the anchor then goes back to standby
+Restart=always
+RestartSec=5
+User=mcmesh-anchor
+SuccessExitStatus=0 143
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/srv/mcmesh-anchor
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+LockPersonality=yes
+RestrictSUIDSGID=yes
+
+[Install]
+WantedBy=multi-user.target
