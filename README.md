@@ -35,3 +35,6 @@ The repository root is a flake. `nix build .#gatewayd` builds the binary, and `n
 }
 ```
 State lives in `/var/lib/mcmesh` (DynamicUser, mode 0700). Open the firewall yourself for the relay ports you enable.
+
+## Offsite backup
+`gatewayd` writes an incremental backup to `MCMESH_BACKUP_DIR` (database snapshot plus content-addressed blobs). `offsite-backup.sh <backup-dir> <remote:path>` mirrors that directory to any rclone remote (S3, Backblaze B2, SFTP, a second disk): blobs are copied once and never deleted offsite, the database snapshot is stored per day under `db/` and the newest `KEEP_DB_DAYS` (default 14) stay. Configure the remote with `rclone config` for the user that runs it, then for example a daily systemd timer or cron line: `0 4 * * * /usr/local/bin/offsite-backup.sh /var/backups/mcmesh b2:my-bucket/mcmesh`. Restore: `rclone copy remote:path/cas <dir>/cas`, `rclone copyto remote:path/db/mcmesh-<day>.db <dir>/mcmesh.db`, and start `gatewayd` with `MCMESH_DB` and `MCMESH_CAS` pointing at them.
