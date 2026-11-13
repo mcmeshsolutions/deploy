@@ -41,3 +41,6 @@ State lives in `/var/lib/mcmesh` (DynamicUser, mode 0700). Open the firewall you
 
 ## Wake on join
 `wake-on-join.sh` is a sidecar (bash, curl, jq) that follows a world's event long poll with a member token. When a player joins and nobody can host (`world.wanted`) it runs `WAKE_CMD` (for example `wakeonlan AA:BB:CC:DD:EE:FF` or a Home Assistant webhook with `curl`). With `SLEEP_CMD` set it runs that after the world has been without a host for `IDLE_MIN` minutes (default 30). Replayed history after a gateway restart never wakes anything. Run one per world, for example as a systemd service with `Restart=always`.
+
+## Discord notices
+`discord-notify.sh` follows a world's event long poll with a member token and posts to a Discord webhook: who started or stopped hosting, new members, refused saves (`commit.rejected`) and non-autosave revisions. Mentions are disabled in the posts. Set `GATEWAY`, `WORLD`, `TOKEN` and `DISCORD_WEBHOOK`; run one per world. Replayed history after a restart is never posted. Slash commands and a live status embed are not built.
