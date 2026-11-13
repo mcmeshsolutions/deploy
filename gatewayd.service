@@ -1,0 +1,44 @@
+[Unit]
+Description=mcmesh gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/gatewayd serve
+EnvironmentFile=/etc/mcmesh/gatewayd.env
+Environment=MCMESH_DB=/var/lib/mcmesh/mcmesh.db MCMESH_CAS=/var/lib/mcmesh/cas
+WorkingDirectory=/var/lib/mcmesh
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65536
+
+# no privileges needed: every port it listens on is above 1024
+DynamicUser=yes
+StateDirectory=mcmesh
+StateDirectoryMode=0700
+CapabilityBoundingSet=
+AmbientCapabilities=
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+
+[Install]
+WantedBy=multi-user.target

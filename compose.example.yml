@@ -1,0 +1,32 @@
+# docker compose -f deploy/compose.example.yml run --rm gatewayd init    (once, creates the database)
+# docker compose -f deploy/compose.example.yml up -d
+services:
+  gatewayd:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp"]
+    volumes:
+      - mcmesh-data:/data
+      - mcmesh-backup:/backup
+    environment:
+      # refuses to start on an empty data volume; `init` above creates it on purpose
+      MCMESH_STRICT_DATA: "1"
+      MCMESH_BACKUP_DIR: /backup
+      MCMESH_AUTH: mojang,key
+      MCMESH_RELAY: all
+      MCMESH_RELAY_ADDR: 0.0.0.0:9000
+      MCMESH_PUBLIC_ADDR: 0.0.0.0:25565
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "9000:9000"
+      - "25565:25565"
+      - "24454:24454/udp"
+volumes:
+  mcmesh-data:
+  mcmesh-backup:
