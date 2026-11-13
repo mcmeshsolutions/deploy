@@ -18,3 +18,20 @@ See the "Behind a forwarder" section in `board/PROTOCOL.md` and the comments in 
 
 ## Grafana
 `grafana-dashboard.json` is an importable dashboard for the gateway's `/metrics` endpoint (Dashboards, Import, pick your Prometheus data source). It covers uptime, leases, players, tunnels, time since the last commit, worlds by state, commits and rejections, relay and blob throughput, host grants and anchor minutes. CAS hit rate (`mcmesh_blob_check_hits_total` over `mcmesh_blob_checks_total`, counted on the blob exists check) has a panel; relay RTT is not exported yet.
+
+## NixOS
+The repository root is a flake. `nix build .#gatewayd` builds the binary, and `nixosModules.default` runs it as a hardened systemd service with the same sandbox as `gatewayd.service`:
+
+```nix
+{
+  inputs.mcmesh.url = "path:/path/to/mcmesh";   # or the git URL of your checkout
+  # in your nixosSystem modules:
+  #   mcmesh.nixosModules.default
+  #   { services.mcmesh-gateway = {
+  #       enable = true;
+  #       environment = { MCMESH_ADDR = "127.0.0.1:8080"; MCMESH_AUTH = "mojang,key"; };
+  #       environmentFile = config.sops.secrets."mcmesh.env".path;   # secrets such as MCMESH_METRICS_TOKEN
+  #   }; }
+}
+```
+State lives in `/var/lib/mcmesh` (DynamicUser, mode 0700). Open the firewall yourself for the relay ports you enable.
