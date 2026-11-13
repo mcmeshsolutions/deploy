@@ -1,0 +1,62 @@
+{
+  "title": "mcmesh gateway",
+  "uid": "mcmesh-gateway",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": {
+    "list": [
+      { "name": "ds", "type": "datasource", "query": "prometheus", "label": "Data source" }
+    ]
+  },
+  "panels": [
+    { "id": 1, "type": "stat", "title": "Gateway up", "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "mcmesh_up", "refId": "A" } ] },
+    { "id": 2, "type": "stat", "title": "Live leases", "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "mcmesh_live_leases", "refId": "A" } ] },
+    { "id": 3, "type": "stat", "title": "Players", "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "mcmesh_players", "refId": "A" } ] },
+    { "id": 4, "type": "stat", "title": "Open tunnels", "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "mcmesh_tunnels", "refId": "A" } ] },
+    { "id": 5, "type": "stat", "title": "Since last commit", "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "time() - mcmesh_last_commit_timestamp_seconds", "refId": "A" } ] },
+    { "id": 6, "type": "timeseries", "title": "Worlds by state", "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "mcmesh_worlds", "legendFormat": "{{state}}", "refId": "A" } ] },
+    { "id": 7, "type": "timeseries", "title": "Commits per hour (rejected in red)", "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "fieldConfig": { "overrides": [ { "matcher": { "id": "byName", "options": "rejected" }, "properties": [ { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } } ] } ] },
+      "targets": [
+        { "expr": "sum(increase(mcmesh_commits_total[1h]))", "legendFormat": "accepted", "refId": "A" },
+        { "expr": "sum(increase(mcmesh_commits_rejected_total[1h]))", "legendFormat": "rejected", "refId": "B" }
+      ] },
+    { "id": 8, "type": "timeseries", "title": "Relay throughput by world", "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "Bps" } },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [
+        { "expr": "sum by (world) (rate(mcmesh_relay_to_guest_bytes_total[5m]))", "legendFormat": "{{world}} to guests", "refId": "A" },
+        { "expr": "sum by (world) (rate(mcmesh_relay_to_host_bytes_total[5m]))", "legendFormat": "{{world}} to host", "refId": "B" }
+      ] },
+    { "id": 9, "type": "timeseries", "title": "Blob upload rate", "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "Bps" } },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "sum(rate(mcmesh_blob_put_bytes_total[5m]))", "legendFormat": "all worlds", "refId": "A" } ] },
+    { "id": 10, "type": "timeseries", "title": "Host grants and logins per hour", "gridPos": { "x": 0, "y": 20, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [
+        { "expr": "sum(increase(mcmesh_host_grants_total[1h]))", "legendFormat": "host grants", "refId": "A" },
+        { "expr": "sum(increase(mcmesh_logins_total[1h]))", "legendFormat": "logins", "refId": "B" },
+        { "expr": "sum(increase(mcmesh_joins_total[1h]))", "legendFormat": "joins", "refId": "C" }
+      ] },
+    { "id": 11, "type": "timeseries", "title": "Anchor minutes per hour", "gridPos": { "x": 12, "y": 20, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${ds}" },
+      "targets": [ { "expr": "sum by (world) (increase(mcmesh_anchor_seconds_total[1h])) / 60", "legendFormat": "{{world}}", "refId": "A" } ] }
+  ]
+}
