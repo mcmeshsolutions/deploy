@@ -17,4 +17,4 @@ Two ways, both with no privileges beyond a data directory.
 See the "Behind a forwarder" section in `board/PROTOCOL.md` and the comments in `gatewayd.env.example`: without it every player looks like the forwarder to the rate limiter.
 
 ## Grafana
-`grafana-dashboard.json` is an importable dashboard for the gateway's `/metrics` endpoint (Dashboards, Import, pick your Prometheus data source). It covers uptime, leases, players, tunnels, time since the last commit, worlds by state, commits and rejections, relay and blob throughput, host grants and anchor minutes. Relay RTT and CAS hit rate are not exported yet, so they have no panel.
+`grafana-dashboard.json` is an importable dashboard for the gateway's `/metrics` endpoint (Dashboards, Import, pick your Prometheus data source). It covers uptime, leases, players, tunnels, time since the last commit, worlds by state, commits and rejections, relay and blob throughput, host grants and anchor minutes. CAS hit rate (`mcmesh_blob_check_hits_total` over `mcmesh_blob_checks_total`, counted on the blob exists check) has a panel; relay RTT is not exported yet.
