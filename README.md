@@ -55,3 +55,13 @@ CMD='gatewayd backup /var/backups/mcmesh && rclone sync /var/backups/mcmesh remo
 ```
 
 Run it on the machine that has the gateway database, one per world, as a systemd service with `Restart=always`. Behind a reverse proxy the stream path must not be buffered (nginx: `proxy_buffering off`).
+
+## Live status message in Discord
+
+`discord-status.sh` (bash, curl, jq) keeps one embed in a channel up to date through a webhook: state, host, players, host load, Minecraft version. It posts the message once, stores its id in `STATE_FILE` (default `~/.mcmesh-discord-status-<world>`), then edits it every `INTERVAL` seconds (default 60) but only when something changed, so it does not hit Discord's rate limits. If the message is deleted it posts a new one. The embed cannot mention anybody. Needs a member token of the world.
+
+```
+GATEWAY=https://gw.example.org WORLD=w1 TOKEN=... DISCORD_WEBHOOK=https://discord.com/api/webhooks/ID/SECRET ./discord-status.sh
+```
+
+Slash commands are not provided: they need a registered Discord application and a public HTTPS endpoint that verifies Discord's Ed25519 signatures, which is a service of its own, not a script.
