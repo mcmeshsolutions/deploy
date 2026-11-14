@@ -44,3 +44,14 @@ State lives in `/var/lib/mcmesh` (DynamicUser, mode 0700). Open the firewall you
 
 ## Discord notices
 `discord-notify.sh` follows a world's event long poll with a member token and posts to a Discord webhook: who started or stopped hosting, new members, refused saves (`commit.rejected`) and non-autosave revisions. Mentions are disabled in the posts. Set `GATEWAY`, `WORLD`, `TOKEN` and `DISCORD_WEBHOOK`; run one per world. Replayed history after a restart is never posted. Slash commands and a live status embed are not built.
+
+## Run a command on every event
+
+`on-event.sh` (bash, curl, jq) follows a world's server-sent event stream with a member token and runs `CMD` when one of the events in `EVENTS` arrives (default `revision.committed`). The command sees `EVENT` and `EVENT_JSON`. `MIN_GAP` seconds is the least time between runs and the last event inside a gap still causes one run after it. History that was in the gateway's log before the script started is ignored, and a dropped connection resumes from the last event id. The use it was written for is pushing a backup on every commit instead of once a day:
+
+```
+GATEWAY=https://gw.example.org WORLD=w1 TOKEN=... EVENTS=revision.committed MIN_GAP=300 \
+CMD='gatewayd backup /var/backups/mcmesh && rclone sync /var/backups/mcmesh remote:mcmesh' ./on-event.sh
+```
+
+Run it on the machine that has the gateway database, one per world, as a systemd service with `Restart=always`. Behind a reverse proxy the stream path must not be buffered (nginx: `proxy_buffering off`).
