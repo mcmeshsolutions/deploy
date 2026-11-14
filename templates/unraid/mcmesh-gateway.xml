@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>mcmesh-gateway</Name>
+  <Repository>ghcr.io/mcmesh/gatewayd:latest</Repository>
+  <Registry></Registry>
+  <Network>bridge</Network>
+  <Privileged>false</Privileged>
+  <Support></Support>
+  <Overview>Gateway for mcmesh shared Minecraft worlds: world store, player list and relay. Put an HTTPS reverse proxy in front of the web port for players outside your network. The image is not published yet.</Overview>
+  <Category>GameServers: Tools:</Category>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <PostArgs></PostArgs>
+  <ExtraParams>--user 10001:10001 --cap-drop ALL --security-opt no-new-privileges:true</ExtraParams>
+  <Config Name="Web and API" Target="8080" Default="8080" Mode="tcp" Description="HTTP panel and API" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="Relay (host tunnel)" Target="9000" Default="9000" Mode="tcp" Description="Hosts connect here" Type="Port" Display="always" Required="true" Mask="false">9000</Config>
+  <Config Name="Minecraft" Target="25565" Default="25565" Mode="tcp" Description="Players connect here" Type="Port" Display="always" Required="true" Mask="false">25565</Config>
+  <Config Name="Voice" Target="24454" Default="24454" Mode="udp" Description="Simple Voice Chat" Type="Port" Display="always" Required="false" Mask="false">24454</Config>
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/mcmesh" Mode="rw" Description="Database and world store, back this up" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/mcmesh</Config>
+  <Config Name="MCMESH_AUTH" Target="MCMESH_AUTH" Default="mojang,key" Description="Login methods" Type="Variable" Display="advanced" Required="false" Mask="false">mojang,key</Config>
+  <Config Name="MCMESH_RELAY" Target="MCMESH_RELAY" Default="all" Description="Serve every world" Type="Variable" Display="advanced" Required="false" Mask="false">all</Config>
+  <Config Name="MCMESH_RELAY_ADDR" Target="MCMESH_RELAY_ADDR" Default="0.0.0.0:9000" Description="" Type="Variable" Display="advanced" Required="false" Mask="false">0.0.0.0:9000</Config>
+  <Config Name="MCMESH_PUBLIC_ADDR" Target="MCMESH_PUBLIC_ADDR" Default="0.0.0.0:25565" Description="" Type="Variable" Display="advanced" Required="false" Mask="false">0.0.0.0:25565</Config>
+</Container>

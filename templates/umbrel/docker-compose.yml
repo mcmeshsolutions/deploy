@@ -1,0 +1,22 @@
+# Umbrel app store layout: the folder name must be the app id (mcmesh-gateway). The image is not published yet.
+version: "3.7"
+services:
+  app_proxy:
+    environment:
+      APP_HOST: mcmesh-gateway_web_1
+      APP_PORT: 8080
+  web:
+    image: ghcr.io/mcmesh/gatewayd:latest
+    restart: on-failure
+    user: "10001:10001"
+    environment:
+      MCMESH_AUTH: mojang,key
+      MCMESH_RELAY: all
+      MCMESH_RELAY_ADDR: 0.0.0.0:9000
+      MCMESH_PUBLIC_ADDR: 0.0.0.0:25565
+    ports:
+      - "9000:9000"
+      - "25565:25565"
+      - "24454:24454/udp"
+    volumes:
+      - ${APP_DATA_DIR}/data:/data

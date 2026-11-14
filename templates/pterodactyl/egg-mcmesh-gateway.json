@@ -1,0 +1,24 @@
+{
+  "_comment": "Pterodactyl and Pelican egg for the gateway. The docker image is not published yet.",
+  "meta": { "version": "PTDL_v2" },
+  "name": "mcmesh gateway",
+  "author": "mcmesh",
+  "description": "Gateway for mcmesh shared Minecraft worlds.",
+  "features": null,
+  "docker_images": { "mcmesh gateway": "ghcr.io/mcmesh/gatewayd:latest" },
+  "file_denylist": [],
+  "startup": "gatewayd serve",
+  "config": {
+    "files": "{}",
+    "startup": "{\"done\": \"gatewayd listening on\"}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": { "installation": { "script": "#!/bin/sh\nmkdir -p /mnt/server/data", "container": "alpine:3.20", "entrypoint": "sh" } },
+  "variables": [
+    { "name": "Login methods", "description": "mojang, key or both", "env_variable": "MCMESH_AUTH", "default_value": "mojang,key", "user_viewable": true, "user_editable": true, "rules": "required|string|max:32", "field_type": "text" },
+    { "name": "Database", "description": "", "env_variable": "MCMESH_DB", "default_value": "/home/container/data/mcmesh.db", "user_viewable": true, "user_editable": false, "rules": "required|string", "field_type": "text" },
+    { "name": "World store", "description": "", "env_variable": "MCMESH_CAS", "default_value": "/home/container/data/cas", "user_viewable": true, "user_editable": false, "rules": "required|string", "field_type": "text" },
+    { "name": "Listen address", "description": "", "env_variable": "MCMESH_ADDR", "default_value": "0.0.0.0:8080", "user_viewable": true, "user_editable": false, "rules": "required|string", "field_type": "text" }
+  ]
+}

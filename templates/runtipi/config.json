@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.runtipi.io/app-info.json",
+  "name": "mcmesh gateway",
+  "id": "mcmesh-gateway",
+  "available": true,
+  "short_desc": "Gateway for mcmesh shared Minecraft worlds",
+  "author": "mcmesh",
+  "port": 8080,
+  "categories": ["utilities"],
+  "description": "World store, player list and relay for mcmesh worlds that move between players' machines.",
+  "tipi_version": 1,
+  "version": "0.1.0",
+  "source": "",
+  "exposable": true,
+  "supported_architectures": ["amd64", "arm64"],
+  "form_fields": []
+}

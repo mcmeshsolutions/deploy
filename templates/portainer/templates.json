@@ -1,0 +1,22 @@
+{
+  "version": "3",
+  "templates": [
+    {
+      "type": 1,
+      "title": "mcmesh gateway",
+      "description": "Gateway for mcmesh shared Minecraft worlds. The image is not published yet.",
+      "categories": ["games"],
+      "platform": "linux",
+      "restart_policy": "unless-stopped",
+      "image": "ghcr.io/mcmesh/gatewayd:latest",
+      "ports": ["8080/tcp", "9000/tcp", "25565/tcp", "24454/udp"],
+      "volumes": [{ "container": "/data" }],
+      "env": [
+        { "name": "MCMESH_AUTH", "label": "Login methods", "default": "mojang,key" },
+        { "name": "MCMESH_RELAY", "default": "all" },
+        { "name": "MCMESH_RELAY_ADDR", "default": "0.0.0.0:9000" },
+        { "name": "MCMESH_PUBLIC_ADDR", "default": "0.0.0.0:25565" }
+      ]
+    }
+  ]
+}

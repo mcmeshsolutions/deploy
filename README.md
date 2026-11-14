@@ -65,3 +65,7 @@ GATEWAY=https://gw.example.org WORLD=w1 TOKEN=... DISCORD_WEBHOOK=https://discor
 ```
 
 Slash commands are not provided: they need a registered Discord application and a public HTTPS endpoint that verifies Discord's Ed25519 signatures, which is a service of its own, not a script.
+
+## One-click templates
+
+`deploy/templates/` holds app definitions for CasaOS, Umbrel, Runtipi, Unraid, Portainer and a Pterodactyl or Pelican egg. They all run the same container as `compose.example.yml` (unprivileged user 10001, ports 8080 web and API, 9000 relay tunnel, 25565 Minecraft, 24454/udp voice, one data volume) with strict-data mode off so the first start creates an empty gateway. None of them has been loaded into its platform yet, and the image `ghcr.io/mcmesh/gatewayd` they name is not published: build `deploy/Dockerfile` and change the image line, or wait for the first release. Coolify and Dokploy take `compose.example.yml` as it is. TrueNAS SCALE apps are Helm charts and are not provided. Players outside your network need an HTTPS address in front of port 8080.

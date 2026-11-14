@@ -1,0 +1,60 @@
+# CasaOS app: copy into /var/lib/casaos/apps/mcmesh or import through the CasaOS custom install screen.
+# The image is not published yet (see deploy/README.md): build deploy/Dockerfile and change the image line.
+name: mcmesh-gateway
+services:
+  gatewayd:
+    image: ghcr.io/mcmesh/gatewayd:latest
+    container_name: mcmesh-gatewayd
+    restart: unless-stopped
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      MCMESH_AUTH: mojang,key
+      MCMESH_BACKUP_DIR: /backup
+      MCMESH_RELAY: all
+      MCMESH_RELAY_ADDR: 0.0.0.0:9000
+      MCMESH_PUBLIC_ADDR: 0.0.0.0:25565
+    ports:
+      - target: 8080
+        published: "8080"
+        protocol: tcp
+      - target: 9000
+        published: "9000"
+        protocol: tcp
+      - target: 25565
+        published: "25565"
+        protocol: tcp
+      - target: 24454
+        published: "24454"
+        protocol: udp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/mcmesh/data
+        target: /data
+      - type: bind
+        source: /DATA/AppData/mcmesh/backup
+        target: /backup
+    x-casaos:
+      ports:
+        - container: "8080"
+          description:
+            en_us: Gateway web panel and API
+      volumes:
+        - container: /data
+          description:
+            en_us: Database and world store. Back this up.
+x-casaos:
+  architectures: [amd64, arm64]
+  main: gatewayd
+  author: mcmesh
+  category: Games
+  description:
+    en_us: Shared Minecraft worlds that move between players' machines. Needs a reverse proxy with HTTPS in front of port 8080 for players outside your network.
+  tagline:
+    en_us: Gateway for mcmesh shared worlds
+  title:
+    en_us: mcmesh gateway
+  port_map: "8080"
+  index: /
+  icon: ""

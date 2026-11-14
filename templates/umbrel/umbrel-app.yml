@@ -1,0 +1,21 @@
+manifestVersion: 1
+id: mcmesh-gateway
+category: games
+name: mcmesh gateway
+version: "0.1.0"
+tagline: Gateway for mcmesh shared Minecraft worlds
+description: >-
+  Keeps the world store, the player list and the relay for mcmesh worlds that move between players' machines.
+  Players outside your network need an HTTPS address in front of the web port.
+developer: mcmesh
+website: ""
+dependencies: []
+repo: ""
+support: ""
+port: 8080
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+submitter: mcmesh
+submission: ""
