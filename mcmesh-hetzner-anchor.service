@@ -1,0 +1,19 @@
+[Unit]
+Description=mcmesh Hetzner Cloud on-demand anchor orchestrator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/mcmesh/hetzner-anchor.env
+ExecStart=/srv/mcmesh/deploy/hetzner-anchor.sh
+Restart=always
+RestartSec=10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+
+[Install]
+WantedBy=multi-user.target
