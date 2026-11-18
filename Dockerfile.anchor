@@ -1,0 +1,64 @@
+# Standby Anchor Node for mcmesh
+# Automatically idles and hosts a shared world when no player machine is online.
+FROM eclipse-temurin:21-jre-alpine
+
+RUN apk add --no-cache bash curl jq tzdata \
+ && adduser -u 10001 -D -h /srv/mcmesh-anchor mcmesh \
+ && mkdir -p /srv/mcmesh-anchor/config/mcmesh \
+ && chown -R 10001:10001 /srv/mcmesh-anchor
+
+WORKDIR /srv/mcmesh-anchor
+USER 10001:10001
+
+ENV MCMESH_API_URL="http://localhost:8080" \
+    MCMESH_WORLD="" \
+    MCMESH_TOKEN="" \
+    MCMESH_RELAY_HOST="localhost" \
+    MCMESH_RELAY_PORT="25571" \
+    MCMESH_ANCHOR_IDLE="10" \
+    JVM_OPTS="-Xms2G -Xmx4G"
+
+COPY --chown=10001:10001 << 'ENTRYPOINT_EOF' /srv/mcmesh-anchor/entrypoint.sh
+#!/usr/bin/env bash
+set -e
+
+mkdir -p /srv/mcmesh-anchor/config/mcmesh
+
+# Write dynamic server config from environment
+cat << TOML_EOF > /srv/mcmesh-anchor/config/mcmesh/mcmesh-server.toml
+packId = "default"
+apiUrl = "${MCMESH_API_URL}"
+relayHost = "${MCMESH_RELAY_HOST}"
+relayPort = ${MCMESH_RELAY_PORT}
+world = "${MCMESH_WORLD}"
+token = "${MCMESH_TOKEN}"
+anchorStandby = true
+anchorWakeOnJoin = true
+anchorIdleMinutes = ${MCMESH_ANCHOR_IDLE}
+guestWarmSync = true
+TOML_EOF
+
+echo "=== mcmesh anchor container initialized ==="
+echo "World:   ${MCMESH_WORLD}"
+echo "Gateway: ${MCMESH_API_URL}"
+
+# Infinite loop: when world is handed over to a player, server exits 0; anchor restarts and idles in standby
+while true; do
+    if [[ -f "/srv/mcmesh-anchor/server.jar" ]]; then
+        echo "Starting anchor server..."
+        java ${JVM_OPTS} -jar /srv/mcmesh-anchor/server.jar nogui || true
+    else
+        echo "Anchor standing by (waiting for server pack or world hydration)..."
+        sleep 10
+    fi
+    echo "Anchor resting before next standby cycle (5s)..."
+    sleep 5
+done
+ENTRYPOINT_EOF
+
+RUN chmod +x /srv/mcmesh-anchor/entrypoint.sh
+
+VOLUME ["/srv/mcmesh-anchor"]
+EXPOSE 25565 24454/udp
+
+ENTRYPOINT ["/srv/mcmesh-anchor/entrypoint.sh"]
