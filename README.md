@@ -1,6 +1,30 @@
 # Running gatewayd
 
-Two ways, both with no privileges beyond a data directory.
+## 1-Command Production Quickstart (Docker Compose + Automated TLS)
+
+For a production gateway with automated SSL certificates, run:
+
+```bash
+./deploy/quickstart.sh
+```
+
+Or non-interactively with custom domain:
+
+```bash
+DOMAIN=mesh.example.com TLS_EMAIL=admin@example.com ./deploy/quickstart.sh
+```
+
+The script:
+1. Validates Docker and Docker Compose v2.
+2. Generates secure random credentials in `.env`.
+3. Sets up Caddy reverse proxy with automatic Let's Encrypt / ZeroSSL TLS certificates on ports 80/443.
+4. Initializes storage volumes and launches `gatewayd` and `caddy`.
+5. Prints the formatted connection card and initial superadmin claim link (`https://<DOMAIN>/panel`).
+
+Manual container startup:
+```bash
+docker compose -f deploy/docker-compose.yml up -d
+```
 
 ## systemd (a plain server such as a VPS or a home box)
 1. `cargo build --release -p gatewayd`, copy `target/release/gatewayd` to `/usr/local/bin/`.

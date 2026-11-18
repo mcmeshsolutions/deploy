@@ -1,0 +1,81 @@
+# MCMesh Production Stack: gatewayd + Caddy Automated TLS
+# Usage:
+#   ./deploy/quickstart.sh
+# Or manual:
+#   docker compose -f deploy/docker-compose.yml up -d
+
+services:
+  gatewayd:
+    image: ${MCMESH_IMAGE:-ghcr.io/mcmeshsolutions/gatewayd:latest}
+    restart: unless-stopped
+    container_name: mcmesh-gatewayd
+    user: "10001:10001"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - "no-new-privileges:true"
+    tmpfs:
+      - "/tmp"
+    volumes:
+      - mcmesh_data:/data
+      - mcmesh_backup:/backup
+    environment:
+      MCMESH_ADDR: "0.0.0.0:8080"
+      MCMESH_DB: "/data/mcmesh.db"
+      MCMESH_CAS: "/data/cas"
+      MCMESH_STRICT_DATA: "${MCMESH_STRICT_DATA:-0}"
+      MCMESH_BACKUP_DIR: "/backup"
+      MCMESH_AUTH: "${MCMESH_AUTH:-mojang,key}"
+      MCMESH_RELAY: "${MCMESH_RELAY:-all}"
+      MCMESH_RELAY_ADDR: "0.0.0.0:9000"
+      MCMESH_PUBLIC_ADDR: "0.0.0.0:25565"
+      MCMESH_VOICE_ADDR: "0.0.0.0:24454"
+      MCMESH_TRUST_PROXY: "1"
+      MCMESH_COMMUNITY_NAME: "${MCMESH_COMMUNITY_NAME:-MCMesh Community}"
+      MCMESH_PACK_NAME: "${MCMESH_PACK_NAME:-MCMesh}"
+      MCMESH_METRICS_TOKEN: "${MCMESH_METRICS_TOKEN:-}"
+      MCMESH_WEBHOOK_SECRET: "${MCMESH_WEBHOOK_SECRET:-}"
+      MCMESH_CREATE: "${MCMESH_CREATE:-open}"
+    ports:
+      - "${PORT_MC:-25565}:25565"
+      - "${PORT_RELAY:-9000}:9000"
+      - "${PORT_VOICE:-24454}:24454/udp"
+    networks:
+      - mcmesh_net
+    healthcheck:
+      test: ["CMD", "gatewayd", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    container_name: mcmesh-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: "${DOMAIN:-localhost}"
+      TLS_EMAIL: "${TLS_EMAIL:-}"
+    networks:
+      - mcmesh_net
+    depends_on:
+      - gatewayd
+
+volumes:
+  mcmesh_data:
+  mcmesh_backup:
+  caddy_data:
+  caddy_config:
+
+networks:
+  mcmesh_net:
+    driver: bridge

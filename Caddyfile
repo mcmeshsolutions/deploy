@@ -1,0 +1,26 @@
+# MCMesh Gateway - Caddy Automated TLS & Reverse Proxy
+{
+    admin off
+}
+
+{$DOMAIN:localhost} {
+    encode zstd gzip
+
+    # Reverse proxy to gatewayd
+    reverse_proxy gatewayd:8080 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+
+        # Disable buffering for Server-Sent Events (SSE) and live streams
+        flush_interval -1
+    }
+
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}
